@@ -161,8 +161,8 @@
             <p><xsl:apply-templates/></p>
     </xsl:template>
     <xsl:template match="db:note">
-        <i class="icon-hand-right pull-left"></i>
         <blockquote>
+            <p><strong><i class="icon-hand-right"></i> Note</strong></p>
             <xsl:apply-templates/>
         </blockquote> 
     </xsl:template>
