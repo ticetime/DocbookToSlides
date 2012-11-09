@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:db="http://docbook.org/ns/docbook"
     xmlns:xlink="http://www.w3.org/1999/xlink"
-    version="1.0">
+    version="2.0">
     <xsl:output encoding="UTF-8" method="html"/>
     <xsl:template match="/db:article">
     <html>
@@ -57,7 +57,7 @@
                 
                 .container {
                 width: auto;
-                max-width: 680px;
+                /*max-width: 680px;*/
                 }
                 .container .credit {
                 margin: 20px 0;
@@ -71,41 +71,13 @@
             <div id="wrap">
                 <xsl:apply-templates select="db:info"/>
                 <xsl:apply-templates select="db:section"/>
-                
-                
-                <div class="container slide" style="display:none">
-                    <div class="page-header">
-                        <h1>Titre du slide 3</h1>
-                    </div>
-                    <p class="lead">
-                        Contenu du slide
-                    </p>
-                    <ul>
-                        <li class="lead">Un item</li>
-                        <li class="lead">Un item
-                            <ul>
-                                <li>Sous item</li>
-                                <li>Sous item</li>
-                            </ul>
-                        </li>
-                    </ul>
-                    <pre class="prettyprint">
-            class Voiture {
-            	def couleur
-            	def nbPortes
-            }
-            				</pre>
-                    <blockquote>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-                        <small>Someone famous in <cite title="Source Title">Source Title</cite></small>
-                    </blockquote>
-                </div>
+           
                 <div id="push"></div>
             </div>
             
             <div id="footer">
                 <div class="container">
-                    <p class="muted credit pull-right">n</p>
+                    <p class="muted credit pull-right"><span id="slideindex">1</span> / <span id="slidescount"></span></p>
                     <div class="pagination span2">
                         <ul>
                             <li><a href="#" onclick="toPrevSlide()">Prec</a></li>
@@ -119,32 +91,34 @@
             <script src="http://code.jquery.com/jquery-latest.js"></script>
             <script src="js/bootstrap.min.js"></script>
             <script>
+                $(document).ready(function () {
+                slides = $('.slide')
+                $("#slidescount").text(slides.size())
+                });
                 
                 function toPrevSlide() {
-                var currentSlide =  $('.currentslide')
-                
+                var currentSlide = $('.currentslide')
                 var elt = currentSlide.prev()
                 if (elt.hasClass('slide')) {
-                
-                // update current slide
-                
-                currentSlide.removeClass('currentslide')
-                currentSlide.css('display','none')
-                
-                // update elt slide
-                elt.css('display','block')
-                elt.addClass('currentslide')
-                
+                updateCurrentSlideWith(currentSlide,elt)
+                } else {
+                updateCurrentSlideWith(currentSlide,slides.last())
                 }
+                
                 
                 }
                 
                 function toNextSlide() {
                 var currentSlide = $('.currentslide')
-                
                 var elt = currentSlide.next()
                 if (elt.hasClass('slide')) {
+                updateCurrentSlideWith(currentSlide, elt)
+                } else {
+                updateCurrentSlideWith(currentSlide, slides.first())
+                }
+                }
                 
+                function updateCurrentSlideWith(currentSlide, elt) {
                 // update current slide
                 
                 currentSlide.removeClass('currentslide')
@@ -154,7 +128,8 @@
                 elt.css('display', 'block')
                 elt.addClass('currentslide')
                 
-                }
+                $("#slideindex").text(slides.index(elt)+1)
+                
                 }
             </script>
         </body>
@@ -163,13 +138,57 @@
     
     <xsl:template match="db:section/db:section">
         <div class="container slide" style="display:none">
-            <div class="page-header">
-                <h1><xsl:value-of select="db:title"/></h1>
-            </div>
-            
+            <xsl:apply-templates/>
         </div>    
     </xsl:template>
-    
+    <xsl:template match="db:section/db:section/db:title">
+        <div class="page-header">
+            <h1><xsl:value-of select="text()"/></h1>
+        </div>
+    </xsl:template>
+    <xsl:template match="db:link">
+        <a href="{@xlink:href}" title="{text()}" target="_blank"><xsl:value-of select="text()"/></a>
+    </xsl:template>
+    <xsl:template match="db:mediaobject">
+        <p><img src="{.//db:imagedata/@fileref}" alt="{db:alt}" title="{db:alt}"/></p>
+    </xsl:template>
+    <xsl:template match="db:section/db:para">
+        <p class="lead">
+            <xsl:apply-templates/>
+        </p>
+    </xsl:template>
+    <xsl:template match="db:para">
+            <p><xsl:apply-templates/></p>
+    </xsl:template>
+    <xsl:template match="db:note">
+        <i class="icon-hand-right pull-left"></i>
+        <blockquote>
+            <xsl:apply-templates/>
+        </blockquote> 
+    </xsl:template>
+    <xsl:template match="db:blockquote">
+        <blockquote>
+            <xsl:apply-templates select="db:para"/>
+            <xsl:apply-templates select="db:attribution"></xsl:apply-templates>
+        </blockquote> 
+    </xsl:template>
+    <xsl:template match="db:attribution" >
+        <small><cite title="{text()}"><xsl:apply-templates/></cite></small>
+    </xsl:template>
+    <xsl:template match="db:computeroutput | db:literallayout">
+        <pre class="prettyprint">
+            <xsl:value-of select="text()"/>
+        </pre> 
+    </xsl:template>
+    <xsl:template match="db:itemizedlist">
+        <ul>
+            <xsl:for-each select="db:listitem">
+                <li class="lead">
+                    <xsl:apply-templates />
+                </li>
+            </xsl:for-each>    
+        </ul>
+    </xsl:template>
     <xsl:template match="db:section">
         <div class="container slide" style="display:none">
             <div class="page-header">
@@ -186,7 +205,7 @@
             </div>
             <ul>
                 <li class="lead">Auteur : <xsl:value-of select="db:author/db:personname"/></li>
-                <li class="lead">Email : <xsl:value-of select="db:author/db:email"/></li>
+                <li class="lead">Email : <xsl:value-of select="replace(db:author/db:email/text(),'@',' at ')"/></li>
             </ul>
             <blockquote>
                 <p><strong>Condition d'utilisation</strong></p> 
