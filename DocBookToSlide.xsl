@@ -3,6 +3,8 @@
     xmlns:xlink="http://www.w3.org/1999/xlink"
     version="2.0">
     <xsl:output encoding="UTF-8" method="html"/>
+    <xsl:variable name="hashtag" select="//db:keyword[@role='hashtag']/text()"/>
+    
     <xsl:template match="/db:article">
     <html>
         <head>
@@ -57,7 +59,7 @@
                 
                 .container {
                 width: auto;
-                /*max-width: 680px;*/
+                max-width: 800px;
                 }
                 .container .credit {
                 margin: 20px 0;
@@ -139,6 +141,7 @@
     <xsl:template match="db:section/db:section">
         <div class="container slide" style="display:none">
             <xsl:apply-templates/>
+            <a target="_blank" href="https://twitter.com/search?q=%23{$hashtag}%20AND%20%23{@xml:id}">Tweets concernant "cette diapositive"</a>
         </div>    
     </xsl:template>
     <xsl:template match="db:section/db:section/db:title">
@@ -195,7 +198,7 @@
                 <h1 style="margin-top:250px;"><xsl:value-of select="db:title"/></h1>
             </div>
         </div>
-        <xsl:apply-templates select="./db:section"/>
+        <xsl:apply-templates select="./db:section[@role='slide']"/>
     </xsl:template>
     
     <xsl:template match="db:info">
