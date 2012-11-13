@@ -4,7 +4,8 @@
     version="2.0">
     <xsl:output encoding="UTF-8" method="html"/>
     <xsl:variable name="hashtag" select="//db:keyword[@role='hashtag']/text()"/>
-    
+    <xsl:param name="displaysTwitterLink" select="true()"/>
+    <xsl:param name="displaysPad" select="true()"/>
     <xsl:template match="/db:article">
     <html>
         <head>
@@ -73,7 +74,9 @@
             <div id="wrap">
                 <xsl:apply-templates select="db:info"/>
                 <xsl:apply-templates select="db:section"/>
-           
+                <xsl:if test="$displaysPad = true()">
+                <div id="pad" class="container" style="display:none"></div>
+                </xsl:if>
                 <div id="push"></div>
             </div>
             
@@ -132,6 +135,20 @@
                 
                 $("#slideindex").text(slides.index(elt)+1)
                 
+                <xsl:if test="$displaysPad = true()">
+                
+                // display pad
+                var slideId = elt.attr("id");
+                if (slideId) {
+                var urlTxt = "http://lite.framapad.org/p/"+ slideId +"?showControls=true&amp;showChat=true&amp;showLineNumbers=true&amp;useMonospaceFont=false"
+                    $("#pad").html('<iframe name="embed_readwrite" src="'+ urlTxt +'" width="800" height="300"></iframe>')
+                    $("#pad").css('display', 'block')
+                } else {
+                    $("#pad").text('')
+                    $("#pad").css('display', 'none')
+                }
+                </xsl:if>
+                
                 }
             </script>
         </body>
@@ -139,10 +156,15 @@
     </xsl:template>
     
     <xsl:template match="db:section/db:section">
-        <div class="container slide" style="display:none">
+        <div class="container slide" style="display:none" id="{@xml:id}">
             <xsl:apply-templates/>
-            <a target="_blank" href="https://twitter.com/search?q=%23{$hashtag}%20AND%20%23{@xml:id}">Tweets concernant "cette diapositive"</a>
-        </div>    
+            <xsl:if test="$displaysTwitterLink = true()">
+                <a target="_blank" href="https://twitter.com/search?q=%23{$hashtag}%20AND%20%23{@xml:id}" class="btn">Tweets concernant "cette diapositive"</a>
+            </xsl:if>
+            <xsl:if test="$displaysPad = true()">
+                <a target="_blank" href="http://lite.framapad.org/p/{@xml:id}" class="btn">Accès direct au Pad</a>
+            </xsl:if>
+        </div>
     </xsl:template>
     <xsl:template match="db:section/db:section/db:title">
         <div class="page-header">
