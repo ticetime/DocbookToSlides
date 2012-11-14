@@ -6,6 +6,7 @@
     <xsl:variable name="hashtag" select="//db:keyword[@role='hashtag']/text()"/>
     <xsl:param name="displaysTwitterLink" select="true()"/>
     <xsl:param name="displaysPad" select="true()"/>
+    <xsl:param name="displaysComments" select="true()"></xsl:param>
     <xsl:template match="/db:article">
     <html>
         <head>
@@ -155,9 +156,9 @@
     </html>
     </xsl:template>
     
-    <xsl:template match="db:section/db:section">
+    <xsl:template match="db:section[@role='slide']" >
         <div class="container slide" style="display:none" id="{@xml:id}">
-            <xsl:apply-templates/>
+            <xsl:apply-templates />
             <xsl:if test="$displaysTwitterLink = true()">
                 <a target="_blank" href="https://twitter.com/search?q=%23{$hashtag}%20AND%20%23{@xml:id}" class="btn">Tweets concernant "cette diapositive"</a>
             </xsl:if>
@@ -166,18 +167,40 @@
             </xsl:if>
         </div>
     </xsl:template>
-    <xsl:template match="db:section/db:section/db:title">
+    <xsl:template match="db:section[@role='comments']">
+        <xsl:if test="$displaysComments = true()">
+        <hr/>
+        <div class="container comments well well-small">
+            <xsl:apply-templates/>
+        </div>
+        </xsl:if>    
+    </xsl:template>
+    <xsl:template match="db:section[@role='comments']/db:title">
+            <h4><xsl:value-of select="text()"/></h4>
+    </xsl:template>
+    
+    <xsl:template match="db:section[@role='slideExcluded']">
+    </xsl:template>
+    
+    <xsl:template match="db:title">
         <div class="page-header">
             <h1><xsl:value-of select="text()"/></h1>
         </div>
     </xsl:template>
     <xsl:template match="db:link">
-        <a href="{@xlink:href}" title="{text()}" target="_blank"><xsl:value-of select="text()"/></a>
+        <xsl:choose>
+            <xsl:when test="@role = 'gist'">
+                <script src="{@xlink:href}.js?file={text()}"></script> 
+            </xsl:when>
+            <xsl:otherwise>
+                <a href="{@xlink:href}" title="{text()}" target="_blank"><xsl:value-of select="text()"/></a>  
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
     <xsl:template match="db:mediaobject">
         <p><img src="{.//db:imagedata/@fileref}" alt="{db:alt}" title="{db:alt}"/></p>
     </xsl:template>
-    <xsl:template match="db:section/db:para">
+    <xsl:template match="db:section[@role='slide']/db:para">
         <p class="lead">
             <xsl:apply-templates/>
         </p>
@@ -220,7 +243,7 @@
                 <h1 style="margin-top:250px;"><xsl:value-of select="db:title"/></h1>
             </div>
         </div>
-        <xsl:apply-templates select="./db:section[@role='slide']"/>
+        <xsl:apply-templates select="db:section[@role='slide']" />
     </xsl:template>
     
     <xsl:template match="db:info">
