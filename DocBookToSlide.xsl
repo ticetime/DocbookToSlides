@@ -94,7 +94,7 @@
                 </div>
             </div>
             
-            <script src="http://code.jquery.com/jquery-latest.js"></script>
+            <script src="js/jquery-1.8.0.js"></script>
             <script src="js/bootstrap.min.js"></script>
             <script>
                 $(document).ready(function () {
@@ -160,7 +160,7 @@
         <div class="container slide" style="display:none" id="{@xml:id}">
             <xsl:apply-templates />
             <xsl:if test="$displaysTwitterLink = true()">
-                <a target="_blank" href="https://twitter.com/search?q=%23{$hashtag}%20AND%20%23{@xml:id}" class="btn">Tweets concernant "cette diapositive"</a>
+                <a target="_blank" href="https://twitter.com/search?q=%23{$hashtag}%20AND%20%23{@xml:id}" class="btn">Tweets "<xsl:value-of select="$hashtag"/> AND <xsl:value-of select="@xml:id"/>"</a>
             </xsl:if>
             <xsl:if test="$displaysPad = true()">
                 <a target="_blank" href="http://lite.framapad.org/p/{@xml:id}" class="btn">Accès direct au Pad</a>
