@@ -4,9 +4,9 @@
     version="2.0">
     <xsl:output encoding="UTF-8" method="html"/>
     <xsl:variable name="hashtag" select="//db:keyword[@role='hashtag']/text()"/>
-    <xsl:param name="displaysTwitterLink" select="true()"/>
-    <xsl:param name="displaysPad" select="true()"/>
-    <xsl:param name="displaysComments" select="true()"></xsl:param>
+    <xsl:param name="displaysTsaapNotes" select="true()"></xsl:param>
+    <xsl:param name="tsaapNotesUrl"/>
+    <xsl:param name="displaysComments" select="false()"></xsl:param>
     <xsl:template match="/db:article">
     <html>
         <head>
@@ -75,8 +75,9 @@
             <div id="wrap">
                 <xsl:apply-templates select="db:info"/>
                 <xsl:apply-templates select="db:section"/>
-                <xsl:if test="$displaysPad = true()">
-                <div id="pad" class="container" style="display:none"></div>
+                
+                <xsl:if test="$displaysTsaapNotes = true()">
+                    <div id="tsaap_notes" class="container" style="display:none"></div>
                 </xsl:if>
                 <div id="push"></div>
             </div>
@@ -86,8 +87,8 @@
                     <p class="muted credit pull-right"><span id="slideindex">1</span> / <span id="slidescount"></span></p>
                     <div class="pagination span2">
                         <ul>
-                            <li><a href="#" onclick="toPrevSlide()">Prec</a></li>
-                            <li><a href="#" onclick="toNextSlide()">Suiv</a></li>
+                            <li><a onclick="toPrevSlide()" accesskey="p">Prec</a></li>
+                            <li><a onclick="toNextSlide()" accesskey=" ">Suiv</a></li>
                         </ul>
                     </div>
                     <p class="muted credit"><xsl:value-of select="db:info/db:title"/></p>
@@ -100,6 +101,12 @@
                 $(document).ready(function () {
                 slides = $('.slide')
                 $("#slidescount").text(slides.size())
+                var currentSlideId = window.location.hash
+                var elt = $(currentSlideId)
+                var currentSlide = $('.currentslide')
+                if (elt.hasClass('slide')) {
+                updateCurrentSlideWith(currentSlide,elt)
+                }
                 });
                 
                 function toPrevSlide() {
@@ -135,19 +142,22 @@
                 elt.addClass('currentslide')
                 
                 $("#slideindex").text(slides.index(elt)+1)
-                
-                <xsl:if test="$displaysPad = true()">
-                
-                // display pad
                 var slideId = elt.attr("id");
-                if (slideId) {
-                var urlTxt = "http://lite.framapad.org/p/"+ slideId +"?showControls=true&amp;showChat=true&amp;showLineNumbers=true&amp;useMonospaceFont=false"
-                    $("#pad").html('<iframe name="embed_readwrite" src="'+ urlTxt +'" width="800" height="300"></iframe>')
-                    $("#pad").css('display', 'block')
-                } else {
-                    $("#pad").text('')
-                    $("#pad").css('display', 'none')
-                }
+                window.location.hash = slideId ; 
+
+                
+                <xsl:if test="$displaysTsaapNotes = true()">
+                    
+                    // display pad
+                    
+                    if (slideId) {
+                    var urlTxt = "<xsl:value-of select="$tsaapNotesUrl"></xsl:value-of>";
+                    $("#tsaap_notes").html('<iframe name="embed_readwrite" src="'+ urlTxt +'" width="800" height="600"></iframe>');
+                    $("#tsaap_notes").css('display', 'block')
+                    } else {
+                    $("#tsaap_notes").text('')
+                    $("#tsaap_notes").css('display', 'none')
+                    }
                 </xsl:if>
                 
                 }
@@ -159,12 +169,6 @@
     <xsl:template match="db:section[@role='slide']" >
         <div class="container slide" style="display:none" id="{@xml:id}">
             <xsl:apply-templates />
-            <xsl:if test="$displaysTwitterLink = true()">
-                <a target="_blank" href="https://twitter.com/search?q=%23{$hashtag}%20AND%20%23{@xml:id}" class="btn">Tweets "<xsl:value-of select="$hashtag"/> AND <xsl:value-of select="@xml:id"/>"</a>
-            </xsl:if>
-            <xsl:if test="$displaysPad = true()">
-                <a target="_blank" href="http://lite.framapad.org/p/{@xml:id}" class="btn">Accès direct au Pad</a>
-            </xsl:if>
         </div>
     </xsl:template>
     <xsl:template match="db:section[@role='comments']">
