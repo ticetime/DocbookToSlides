@@ -151,7 +151,7 @@
                     // display pad
                     
                     if (slideId) {
-                    var urlTxt = "<xsl:value-of select="$tsaapNotesUrl"></xsl:value-of>";
+                    var urlTxt = "<xsl:value-of select="$tsaapNotesUrl"></xsl:value-of>&amp;fragmentTagName="+slideId;
                     $("#tsaap_notes").html('<iframe name="embed_readwrite" src="'+ urlTxt +'" width="800" height="600"></iframe>');
                     $("#tsaap_notes").css('display', 'block')
                     } else {
@@ -242,7 +242,7 @@
         </ul>
     </xsl:template>
     <xsl:template match="db:section">
-        <div class="container slide" style="display:none">
+        <div class="container slide" style="display:none" id="{@xml:id}">
             <div class="page-header">
                 <h1 style="margin-top:250px;"><xsl:value-of select="db:title"/></h1>
             </div>
