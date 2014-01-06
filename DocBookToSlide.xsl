@@ -209,8 +209,16 @@
             <xsl:apply-templates/>
         </p>
     </xsl:template>
+    <xsl:template match="db:section[@role='slide']/db:blockquote/db:para">
+        <p class="lead">
+            <xsl:apply-templates/>
+        </p>
+    </xsl:template>
     <xsl:template match="db:para">
             <p><xsl:apply-templates/></p>
+    </xsl:template>
+    <xsl:template match="db:emphasis">
+        <strong><xsl:apply-templates/></strong>
     </xsl:template>
     <xsl:template match="db:note">
         <blockquote>
