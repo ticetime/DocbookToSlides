@@ -4,6 +4,8 @@
     version="2.0">
     <xsl:output encoding="UTF-8" method="html"/>
     <xsl:variable name="hashtag" select="//db:keyword[@role='hashtag']/text()"/>
+    <xsl:param name="displaysTsaapNotes" select="true()"></xsl:param>
+    <xsl:param name="tsaapNotesUrl"/>
     <xsl:param name="displaysComments" select="false()"></xsl:param>
     <xsl:template match="/db:article">
     <html>
@@ -22,22 +24,9 @@
                 height: 100%;
                 /* The html and body elements cannot have any padding or margin. */
                 }
-                
-                /* Wrapper for page content to push down footer */
-                #wrap {
-                min-height: 100%;
-                height: auto !important;
-                height: 100%;
-                /* Negative indent footer by it's height */
-                margin: 0 auto -60px;
-                }
-                
-                /* Set the fixed height of the footer here */
-                #push,
+
                 #footer {
-                height: 60px;
-                }
-                #footer {
+                height:40px;
                 background-color: #f5f5f5;
                 }
                 
@@ -49,6 +38,10 @@
                 padding-left: 20px;
                 padding-right: 20px;
                 }
+                }
+
+                h3 {
+                    line-height:20px;
                 }
                 
                 
@@ -62,7 +55,10 @@
                 max-width: 800px;
                 }
                 .container .credit {
-                margin: 20px 0;
+                margin: 5px 0;
+                }
+                .container .pagination {
+                margin: 5px 0;
                 }
                 
             </style>
@@ -70,13 +66,6 @@
             <link href="css/bootstrap-responsive.min.css" rel="stylesheet" />
         </head>
         <body>
-            <div id="wrap">
-                <xsl:apply-templates select="db:info"/>
-                <xsl:apply-templates select="db:section"/>
-
-                <div id="push"></div>
-            </div>
-            
             <div id="footer">
                 <div class="container">
                     <p class="muted credit pull-right"><span id="slideindex">1</span> / <span id="slidescount"></span></p>
@@ -89,6 +78,15 @@
                     <p class="muted credit"><xsl:value-of select="db:info/db:title"/></p>
                 </div>
             </div>
+            <div id="wrap">
+                <xsl:apply-templates select="db:info"/>
+                <xsl:apply-templates select="db:section"/>
+            </div>
+            
+
+            <xsl:if test="$displaysTsaapNotes = true()">
+                <div id="tsaap_notes" class="container" style="display:none"></div>
+            </xsl:if>
             
             <script src="js/jquery-1.8.0.js"></script>
             <script src="js/bootstrap.min.js"></script>
@@ -138,7 +136,22 @@
                 
                 $("#slideindex").text(slides.index(elt)+1)
                 var slideId = elt.attr("id");
-                window.location.hash = slideId ;
+                window.location.hash = slideId ; 
+
+                
+                <xsl:if test="$displaysTsaapNotes = true()">
+                    
+                    // display pad
+                    
+                    if (slideId) {
+                    var urlTxt = "<xsl:value-of select="$tsaapNotesUrl"></xsl:value-of>&amp;fragmentTagName="+slideId;
+                    $("#tsaap_notes").html('<iframe name="embed_readwrite" src="'+ urlTxt +'" width="800" height="600"></iframe>');
+                    $("#tsaap_notes").css('display', 'block')
+                    } else {
+                    $("#tsaap_notes").text('')
+                    $("#tsaap_notes").css('display', 'none')
+                    }
+                </xsl:if>
                 
                 }
             </script>
@@ -168,7 +181,7 @@
     
     <xsl:template match="db:title">
         <div class="page-header">
-            <h1><xsl:value-of select="text()"/></h1>
+            <h3><xsl:value-of select="text()"/></h3>
         </div>
     </xsl:template>
     <xsl:template match="db:link">
@@ -183,16 +196,6 @@
     </xsl:template>
     <xsl:template match="db:mediaobject">
         <p><img src="{.//db:imagedata/@fileref}" alt="{db:alt}" title="{db:alt}"/></p>
-    </xsl:template>
-    <xsl:template match="db:section[@role='slide']/db:para">
-        <p class="lead">
-            <xsl:apply-templates/>
-        </p>
-    </xsl:template>
-    <xsl:template match="db:section[@role='slide']/db:blockquote/db:para">
-        <p class="lead">
-            <xsl:apply-templates/>
-        </p>
     </xsl:template>
     <xsl:template match="db:para">
             <p><xsl:apply-templates/></p>
@@ -223,7 +226,7 @@
     <xsl:template match="db:itemizedlist">
         <ul>
             <xsl:for-each select="db:listitem">
-                <li class="lead">
+                <li>
                     <xsl:apply-templates />
                 </li>
             </xsl:for-each>    
@@ -232,7 +235,7 @@
     <xsl:template match="db:section">
         <div class="container slide" style="display:none" id="{@xml:id}">
             <div class="page-header">
-                <h1 style="margin-top:250px;"><xsl:value-of select="db:title"/></h1>
+                <h3><xsl:value-of select="db:title"/></h3>
             </div>
         </div>
         <xsl:apply-templates select="db:section[@role='slide']" />
@@ -241,11 +244,11 @@
     <xsl:template match="db:info">
         <div class="container slide currentslide">
             <div class="page-header">
-                <h1><xsl:value-of select="db:title"/></h1>
+                <h3><xsl:value-of select="db:title"/></h3>
             </div>
             <ul>
-                <li class="lead">Auteur : <xsl:value-of select="db:author/db:personname"/></li>
-                <li class="lead">Email : <xsl:value-of select="replace(db:author/db:email/text(),'@',' at ')"/></li>
+                <li>Auteur : <xsl:value-of select="db:author/db:personname"/></li>
+                <li>Email : <xsl:value-of select="replace(db:author/db:email/text(),'@',' at ')"/></li>
             </ul>
             <blockquote>
                 <p><strong>Condition d'utilisation</strong></p> 
