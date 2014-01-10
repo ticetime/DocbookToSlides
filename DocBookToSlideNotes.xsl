@@ -66,6 +66,11 @@
             <link href="css/bootstrap-responsive.min.css" rel="stylesheet" />
         </head>
         <body>
+
+            <div id="wrap">
+                <xsl:apply-templates select="db:info"/>
+                <xsl:apply-templates select="db:section"/>
+            </div>
             <div id="footer">
                 <div class="container">
                     <p class="muted credit pull-right"><span id="slideindex">1</span> / <span id="slidescount"></span></p>
@@ -78,11 +83,6 @@
                     <p class="muted credit"><xsl:value-of select="db:info/db:title"/></p>
                 </div>
             </div>
-            <div id="wrap">
-                <xsl:apply-templates select="db:info"/>
-                <xsl:apply-templates select="db:section"/>
-            </div>
-            
 
             <xsl:if test="$displaysTsaapNotes = true()">
                 <div id="tsaap_notes" class="container" style="display:none"></div>
