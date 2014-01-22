@@ -215,7 +215,7 @@
     <xsl:template match="db:attribution" >
         <small><cite title="{text()}"><xsl:apply-templates/></cite></small>
     </xsl:template>
-    <xsl:template match="db:computeroutput | db:literallayout">
+    <xsl:template match="db:computeroutput | db:literallayout | db:code ">
         <pre class="prettyprint">
             <xsl:value-of select="text()"/>
         </pre> 
