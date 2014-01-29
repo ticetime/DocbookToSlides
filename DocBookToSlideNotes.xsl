@@ -227,7 +227,7 @@
     </xsl:template>
     <xsl:template match="db:mediaobject">
         <p>
-            <img src="{.//db:imagedata/@fileref}" alt="{db:alt}" title="{db:alt}"/>
+            <img src="{.//db:imagedata/@fileref}" alt="{db:alt}" title="{db:alt}" width="50%"/>
         </p>
     </xsl:template>
     <xsl:template match="db:para">
